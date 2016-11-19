@@ -10,7 +10,7 @@ class MyFunctionRequestHandler : public RequestHandler {
 public:
 
     MyFunctionRequestHandler(DisplayCharter* pDisplayLowerRing, DisplayCharter* pDisplayUpperRing, IPDisplay* pIpDisplay, Adafruit_DotStar* pLedstripLogo, Config* pConfig, bool debug);
-    
+    String getContentType(ESP8266WebServer& server, String filename);
     bool canHandle(HTTPMethod requestMethod, String requestUri) override  { return true; }
     bool canUpload(String requestUri) override  { return true; }
 
@@ -34,7 +34,7 @@ private:
     IPDisplay* mpIpDisplay;
     Adafruit_DotStar* mpLedstripLogo;
     Config* mpConfig;
-    
+
     bool mDebug;
     int  miUploadSize;
     File mUploadFile;

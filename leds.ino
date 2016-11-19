@@ -22,10 +22,13 @@ void dotstarSetColor(Adafruit_DotStar &dotstar, byte r, byte g, byte b ) {
 }
 
 void ledsSetLogoDefault() {
-  ledstrip_logo.setPixelColor(0, 0, 100, 255); // http://ufo/api?logoled=0&r=0&g=100&b=255
-  ledstrip_logo.setPixelColor(1, 125, 255, 0); // http://ufo/api?logoled=1&r=125&g=255&b=0
-  ledstrip_logo.setPixelColor(2, 0, 255, 0); // http://ufo/api?logoled=2&r=0&g=255&b=0
-  ledstrip_logo.setPixelColor(3, 255, 0, 255); // http://ufo/api?logoled=3&r=255&g=0&b=255
+  ledstrip_logo.setPixelColor(0, 50, 255, 20); // http://ufo/api?logoled=0&r=0&g=100&b=255
+  ledstrip_logo.setPixelColor(1, 50, 255, 20); // http://ufo/api?logoled=1&r=125&g=255&b=0
+  ledstrip_logo.setPixelColor(2, 50, 255, 20); // http://ufo/api?logoled=2&r=0&g=255&b=0
+  ledstrip_logo.setPixelColor(3, 50, 255, 20); // http://ufo/api?logoled=3&r=255&g=0&b=255
+  ledstrip_logo.setPixelColor(4, 50, 255, 20); // http://ufo/api?logoled=3&r=255&g=0&b=255
+  ledstrip_logo.setPixelColor(5, 50, 255, 20); // http://ufo/api?logoled=3&r=255&g=0&b=255
+  
   ledstrip_logo.setBrightness(255);
 }
 

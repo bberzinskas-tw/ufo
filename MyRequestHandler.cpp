@@ -2,13 +2,13 @@
 #include "DisplayCharter.h"
 #include "Config.h"
 #include "Defines.h"
-#include "WebContent.h"
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
 #include <FS.h>
 #include <StreamString.h>
 
 extern void ledsSetLogoDefault();
+
 
 MyFunctionRequestHandler::MyFunctionRequestHandler(DisplayCharter* pDisplayLowerRing, DisplayCharter* pDisplayUpperRing, IPDisplay* pIpDisplay, Adafruit_DotStar* pLedstripLogo, Config* pConfig, bool debug){
   mpDisplayLowerRing = pDisplayLowerRing;
@@ -19,48 +19,21 @@ MyFunctionRequestHandler::MyFunctionRequestHandler(DisplayCharter* pDisplayLower
   mDebug = debug;
   miUploadSize = 0;
 }
-    
+
 bool MyFunctionRequestHandler::handle(ESP8266WebServer& server, HTTPMethod requestMethod, String requestUri){
-  
+
   server.client().setNoDelay(true);
   requestUri.toLowerCase();
-  
+
   Serial.println(String(F("handle(")) + String(requestMethod) + String(F(", ")) + requestUri + String(F(")")));
-   
+
   if (requestMethod == HTTP_GET){
 
-    if (requestUri.equals(F("/")) || requestUri.equals(F("/index.html"))){
-      server.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
-      server.sendHeader(F("Content-Encoding"), F("gzip"));
-      server.send_P(200, String(F("text/html")).c_str(), index_comb_html, sizeof(index_comb_html));
-      return true;
-    }
-    if (requestUri.equals(F("/font.woff"))){
-      server.send_P(200, String(F("text/html")).c_str(), font_woff, sizeof(font_woff));
-      return true;
-    }
-    /*if (handleStatic(server, requestUri, F("/"), F("/index_comb.html.gz"), F("text/html"), false)) return true;
-    if (handleStatic(server, requestUri, F("/"), F("/index.html"), F("text/html"), false)) return true;
-    if (handleStatic(server, requestUri, F("/index.html"), F("/index_comb.html.gz"), F("text/html"), false)) return true;
-    if (handleStatic(server, requestUri, F("/index.html"), F("/index.html"), F("text/html"), false)) return true;
-    if (handleStatic(server, requestUri, F("/phonon.min.css"), F("/phonon.min.css"), F("text/css"), true)) return true;
-    if (handleStatic(server, requestUri, F("/phonon.min.js"), F("/phonon.min.js"), F("application/javascript"), true)) return true;
-    if (handleStatic(server, requestUri, F("/forms.min.css"), F("/forms.min.css"), F("text/css"), true)) return true;
-    if (handleStatic(server, requestUri, F("/forms.min.js"), F("/forms.min.js"), F("application/javascript"), true)) return true;
-    if (handleStatic(server, requestUri, F("/icons.min.css"), F("/icons.min.css"), F("text/css"), true)) return true;
-    if (handleStatic(server, requestUri, F("/lists.min.css"), F("/lists.min.css"), F("text/css"), true)) return true;
-    if (handleStatic(server, requestUri, F("/phonon-base.min.css"), F("/phonon-base.min.css"), F("text/css"), true)) return true;
-    if (handleStatic(server, requestUri, F("/phonon-core.min.js"), F("/phonon-core.min.js"), F("application/javascript"), true)) return true;
-    if (handleStatic(server, requestUri, F("/font.woff"), F("/font.woff"), F("application/font.woff"), true)) return true;
-    if (handleStatic(server, requestUri, F("/font.eot"), F("/font.eot"), F("application/font.eot"), true)) return true;
-    if (handleStatic(server, requestUri, F("/font.svg"), F("/font.svg"), F("application/font.svg"), true)) return true;
-    if (handleStatic(server, requestUri, F("/font.ttf"), F("/font.ttf"), F("application/font.ttf"), true)) return true;
-    */
-  
     if (requestUri.startsWith(F("/api"))){
       apiHandler(server);
       return true;
     }
+
     if (requestUri.startsWith(F("/info"))){
       infoHandler(server);
       return true;
@@ -85,13 +58,26 @@ bool MyFunctionRequestHandler::handle(ESP8266WebServer& server, HTTPMethod reque
          return true;
       }
     }
-    
+
     if (requestUri.equals(F("/dynatrace"))){
       dynatracePostHandler(server);
       return true;
     }
   }
-  
+     // still here ?  load it from FS
+    String path = server.uri();
+      String contentType = getContentType(server, path);
+      String pathWithGz = path + ".gz";
+
+      if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
+        if(SPIFFS.exists(pathWithGz))
+          path += ".gz";
+        File file = SPIFFS.open(path, "r");
+        size_t sent = server.streamFile(file, contentType);
+        file.close();
+        return true;
+      }
+
   //Now we really need to respond with 404
   String message = F("File Not Found\n\n");
   message += F("URI: ");
@@ -107,9 +93,28 @@ bool MyFunctionRequestHandler::handle(ESP8266WebServer& server, HTTPMethod reque
   }
   server.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
   server.send (404, F("text/plain"), message);
-  
+
   return true;
 }
+
+
+String MyFunctionRequestHandler::getContentType(ESP8266WebServer& server, String filename){
+  if(server.hasArg("download")) return "application/octet-stream";
+  else if(filename.endsWith(".htm")) return "text/html";
+  else if(filename.endsWith(".html")) return "text/html";
+  else if(filename.endsWith(".css")) return "text/css";
+  else if(filename.endsWith(".js")) return "application/javascript";
+  else if(filename.endsWith(".png")) return "image/png";
+  else if(filename.endsWith(".gif")) return "image/gif";
+  else if(filename.endsWith(".jpg")) return "image/jpeg";
+  else if(filename.endsWith(".ico")) return "image/x-icon";
+  else if(filename.endsWith(".xml")) return "text/xml";
+  else if(filename.endsWith(".pdf")) return "application/x-pdf";
+  else if(filename.endsWith(".zip")) return "application/x-zip";
+  else if(filename.endsWith(".gz")) return "application/x-gzip";
+  return "text/plain";
+}
+
 
 void  MyFunctionRequestHandler::upload(ESP8266WebServer& server, String requestUri, HTTPUpload& upload){
   //Serial.println(String(F("upload(")) + requestUri + String(F(")")));
@@ -237,52 +242,52 @@ void MyFunctionRequestHandler::infoHandler(ESP8266WebServer& server) {
   json += '"'; json += F("heap"); json += '"';
   json += ':';
   json += '"'; json +=  String(ESP.getFreeHeap()); json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("ssid"); json += '"';
   json += ':';
   json += '"'; json +=  String(WiFi.SSID()); json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("ipaddress"); json += '"';
   json += ':';
   json += '"'; json +=  WiFi.localIP().toString(); json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("ipgateway"); json += '"';
   json += ':';
   json += '"'; json +=  WiFi.gatewayIP().toString(); json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("ipdns"); json += '"';
   json += ':';
   json += '"'; json += WiFi.dnsIP().toString(); json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("ipsubnetmask"); json += '"';
   json += ':';
   json += '"'; json +=  WiFi.subnetMask().toString(); json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("macaddress"); json += '"';
   json += ':';
   json += '"'; json +=  WiFi.macAddress(); json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("hostname"); json += '"';
   json += ':';
   json += '"'; json +=  WiFi.hostname(); json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("apipaddress"); json += '"';
   json += ':';
   json += '"'; json +=  WiFi.softAPIP().toString(); json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("apconnectedstations"); json += '"';
   json += ':';
   json += '"'; json += String(WiFi.softAPgetStationNum()); json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("wifiautoconnect"); json += '"';
   json += ':';
   json += '"'; json += String(WiFi.getAutoConnect()); json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("firmwareversion"); json += '"';
   json += ':';
   json += '"'; json += String(FIRMWARE_VERSION); json += '"';
   json += '}';
-  
+
   server.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
   server.send(200, F("text/json"), json);
 }
@@ -293,20 +298,20 @@ void MyFunctionRequestHandler::dtIntegrationHandler(ESP8266WebServer& server) {
   json += '"'; json += F("enabled"); json += '"';
   json += ':';
   json += mpConfig->enabled ? F("true") : F("false");
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("environmentid"); json += '"';
   json += ':';
   json += '"'; json += mpConfig->dynatraceEnvironmentID; json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("apikey"); json += '"';
   json += ':';
   json += '"'; json += mpConfig->dynatraceApiKey; json += '"';
-  json += F(", "); 
+  json += F(", ");
   json += '"'; json += F("interval"); json += '"';
   json += ':';
   json += '"'; json += mpConfig->pollingIntervalS; json += '"';
   json += '}';
-  
+
   server.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
   server.send(200, F("text/json"), json);
 }
@@ -342,24 +347,24 @@ void MyFunctionRequestHandler::apiHandler(ESP8266WebServer& server) {
     String argument = server.arg(F("top"));
     unsigned int i = 0;
     unsigned int ret = 0;
-    
+
     while (i < argument.length())
       i = mpDisplayUpperRing->ParseLedArg(argument, i);
   }
   if (server.hasArg(F("top_bg"))){
     String argument = server.arg(F("top_bg"));
     if (argument.length() == 6)
-      mpDisplayUpperRing->SetBackground(argument.substring(2, 4) + argument.substring(0, 2) + argument.substring(4, 6)); 
+      mpDisplayUpperRing->SetBackground(argument.substring(2, 4) + argument.substring(0, 2) + argument.substring(4, 6));
   }
   if (server.hasArg(F("top_whirl"))){
     String argument = server.arg(F("top_whirl"));
     mpDisplayUpperRing->ParseWhirlArg(argument);
-  } 
+  }
   if (server.hasArg(F("top_morph"))){
     String argument = server.arg(F("top_morph"));
     mpDisplayUpperRing->ParseMorphArg(argument);
-  } 
-    
+  }
+
   if (server.hasArg(F("bottom_init"))){
     mpDisplayLowerRing->Init();
   }
@@ -367,23 +372,23 @@ void MyFunctionRequestHandler::apiHandler(ESP8266WebServer& server) {
     String argument = server.arg(F("bottom"));
     unsigned int i = 0;
     unsigned int ret = 0;
-    
+
     while (i < argument.length())
       i = mpDisplayLowerRing->ParseLedArg(argument, i);
   }
   if (server.hasArg(F("bottom_bg"))){
     String argument = server.arg(F("bottom_bg"));
     if (argument.length() == 6)
-      mpDisplayLowerRing->SetBackground(argument.substring(2, 4) + argument.substring(0, 2) + argument.substring(4, 6)); 
+      mpDisplayLowerRing->SetBackground(argument.substring(2, 4) + argument.substring(0, 2) + argument.substring(4, 6));
   }
   if (server.hasArg(F("bottom_whirl"))){
     String argument = server.arg(F("bottom_whirl"));
     mpDisplayLowerRing->ParseWhirlArg(argument);
-  } 
+  }
   if (server.hasArg(F("bottom_morph"))){
     String argument = server.arg(F("bottom_morph"));
     mpDisplayLowerRing->ParseMorphArg(argument);
-  } 
+  }
 
   if (server.hasArg(F("dynatrace-environmentid")) && server.hasArg(F("dynatrace-apikey")) && server.hasArg(F("dynatrace-interval"))) {
     if (mDebug) Serial.println(F("Storing Dynatrace SaaS/Managed environment integration settings"));
@@ -422,7 +427,7 @@ void MyFunctionRequestHandler::apiHandler(ESP8266WebServer& server) {
     String newWifiHostname = server.arg(F("hostname"));
     //TODO##################################################################
   }
-  
+
   server.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
   server.send(200);
 }
@@ -446,4 +451,4 @@ void MyFunctionRequestHandler::dynatracePostHandler(ESP8266WebServer& server) {
 }
 
 
-  
+

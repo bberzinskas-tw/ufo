@@ -33,13 +33,12 @@ boolean debug = true;
 #include <StreamString.h>
 #include "DisplayCharter.h"
 #include "MyRequestHandler.h"
-#include "DataPolling.h"
 #include "Config.h"
 #include "defines.h"
 
-//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------boolean debug = true;
 
-Adafruit_DotStar ledstrip_logo = Adafruit_DotStar(4, PIN_DOTSTAR_LOGO, PIN_DOTSTAR_CLOCK, DOTSTAR_BGR); //NOTE: in case the colors dont match, check out the last color order parameter
+Adafruit_DotStar ledstrip_logo = Adafruit_DotStar(6, PIN_DOTSTAR_LOGO, PIN_DOTSTAR_CLOCK, DOTSTAR_BGR); //NOTE: in case the colors dont match, check out the last color order parameter
 Adafruit_DotStar ledstrip_lowerring = Adafruit_DotStar(RING_LEDCOUNT, PIN_DOTSTAR_LOWERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
 Adafruit_DotStar ledstrip_upperring = Adafruit_DotStar(RING_LEDCOUNT, PIN_DOTSTAR_UPPERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
 
@@ -48,7 +47,6 @@ DisplayCharter displayCharter_upperring;
 
 IPDisplay ipDisplay;
 Config dTConfig(debug);
-DataPolling dataPolling(&displayCharter_lowerring, &displayCharter_upperring, &ipDisplay, &dTConfig, debug);
 
 boolean logo = true;
 
@@ -89,7 +87,7 @@ void handleFactoryReset() {
 
     //delete config file to make sure we exit client only mode that disables the webserver
     //dTConfig.Delete();
-    
+
     WiFi.disconnect(false); //disconnect and disable station mode; delete old config
     // default IP address for Access Point is 192.168.4.1
     //WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0)); // IP, gateway, netmask -- NOT STORED TO FLASH!!
@@ -146,7 +144,7 @@ void WiFiEvent(WiFiEvent_t event) {
         //Serial.println("WiFi accesspoint: probe request received.");
         break;
     }
-  
+
 }
 
 void printSpiffsContents() {
@@ -237,19 +235,19 @@ void loop ( void ) {
 
   if (!wifiConfigMode && wifiStationOK){
     unsigned long m = millis();
-    if (m - startMillis > dTConfig.pollingIntervalS * 1000){
+    if (m - startMillis > 5000){
       startMillis = m;
-      dataPolling.Poll();
+      //dataPolling.Poll();
     }
-    ipDisplay.ProcessTick();   
+    ipDisplay.ProcessTick();
   }
-  
+
   httpServer.handleClient();
 
- 
+
   displayCharter_lowerring.Display(ledstrip_lowerring);
   displayCharter_upperring.Display(ledstrip_upperring);
-  
+
   yield();
 
   // show AP mode in blue to tell user to configure WIFI; especially after RESET
@@ -279,7 +277,7 @@ void loop ( void ) {
   ledstrip_logo.show();
   ledstrip_upperring.show();
   ledstrip_lowerring.show();
-  
+
 }
 
 

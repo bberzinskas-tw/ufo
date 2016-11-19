@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height"
+	/>
+	<link rel="stylesheet" href="phonon-base.min.css" />
+	<link rel="stylesheet" href="lists.min.css" />
+	<link rel="stylesheet" href="forms.min.css" />
+	<link rel="stylesheet" href="icons.min.css" />
+	<title>Dynatrace UFO</title>
+</head>
+
+<body>
+	<!-- the home page is the default one. This page does not require to call its content because we define on its tag.-->
+	<home data-page="true">
+		<header class="header-bar">
+			<div class="center">
+				<h1 class="title">Dynatrace UFO</h1>
+				documentation and latest updates at <a href="http://dynatrace.github.io/ufo/">http://dynatrace.github.io/ufo/</a>
+			</div>
+		</header>
+
+		<div class="content">
+			<ul class="list">
+				<li class="divider">UFO communication examples (REST calls)</li>
+				<li>
+					<span class="padded-list">/api?logo=on|off</span>
+					<button class="btn btn-flat primary pull-right" data-api="logo=off" id="led1off">Off</button>
+					<button class="btn btn-flat primary pull-right" data-api="logo=on" id="led1on">On</button>
+				</li>
+				<li>
+					<span class="padded-list">/api?top_init=1&top=0|3|FF0000&top_bg=00FF00</span>
+					<button class="btn btn-flat primary pull-right" data-api="top_init=1&top=0|3|FF0000&top_bg=00FF00" id="apisample1">Set</button>
+				</li>
+				<li>
+					<span class="padded-list">/api?top_init=1&top=0|1|FFC000|1|3|FF0000|4|1|FFC000&top_bg=00A00a&top_whirl=220</span>
+					<button class="btn btn-flat primary pull-right" data-api="top_init=1&top=0|1|FFC000|1|3|FF0000|4|1|FFC000&top_bg=00A00a&top_whirl=220" id="apisample2">Set</button>
+				</li>
+				<li>
+					<span class="padded-list">/api?bottom_init=1&bottom=0|15|FF0000&bottom_bg=0000FF&bottom_morph=500|6</span>
+					<button class="btn btn-flat primary pull-right" data-api="bottom_init=1&bottom=0|15|FF0000&bottom_bg=0000FF&bottom_morph=500|6" id="apisample3">Set</button>
+				</li>
+				<li class="divider">UFO machine room</li>
+				<li>
+					<a href="#!pageinfo" class="padded-list">Info</a>
+				</li>
+				<li>
+					<a href="#!pagefirmwareupdate" class="padded-list">Firmware update</a>
+				</li>
+				<li>
+					<a href="#!pagedynatraceintegrationsettings" class="padded-list">Dynatrace integration</a>
+				</li>
+				<li>
+					<!--<a href="wifisettings.html" class="padded-list">Wifi settings</a>-->
+					<a href="#!pagewifisettings" class="padded-list">WIFI Settings</a>
+				</li>
+			</ul>
+
+
+		</div>
+
+	</home>
+
+	<!-- for the second page, Phonon will load its content. -->
+	<pageinfo data-page="true">
+		<header class="header-bar">
+			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+			<div class="center">
+				<h1 class="title">Info</h1>
+			</div>
+		</header>
+		<div class="content">
+			<ul class="list">
+				<li class="divider">System</li>
+				<!-- TODO class=pull-right doesnt work for wider strings -->
+				<li class="padded-list">Heap: <span class="pull-right" id="infoheap">-</span></li>
+				<li class="padded-list">Firmware: <span id="infofirmwareversion">-</span></li>
+				<li class="divider">Network</li>
+				<li class="padded-list">SSID: <span id="infossid">-</span></li>
+				<li class="padded-list">IP: <span id="infoipaddress">-</span></li>
+				<li class="padded-list">Subnetmask: <span id="infoipsubnetmask">-</span></li>
+				<li class="padded-list">Gateway: <span id="infoipgateway">-</span></li>
+				<li class="padded-list">DNS: <span id="infoipdns">-</span></li>
+				<li class="padded-list">Hostname: <span id="infohostname">-</span></li>
+				<li class="padded-list">Macaddress: <span id="infomacaddress">-</span></li>
+				<li class="padded-list">Wifi autoconnect: <span id="infowifiautoconnect">-</span></li>
+				<li class="divider">Accesspoint</li>
+				<li class="padded-list">IP: <span id="infoapipaddress">-</span></li>
+				<li class="padded-list">Connected stations: <span id="infoapconnectedstations">-</span></li>
+			</ul>
+		</div>
+	</pageinfo>
+
+	<pagefirmwareupdate data-page="true">
+		<header class="header-bar">
+			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+			<div class="center">
+				<h1 class="title">Firmware upload</h1>
+			</div>
+		</header>
+		<div class="content">
+			<div class="input-wrapper list">
+				<form method='POST' action='/update' enctype='multipart/form-data'>
+					<span class="padded-list">Select firmware file like ufo.ino.bin or index.html (do not upload the ufo.spiffs.bin here)</span>
+					<li>
+						<input class="padded-full" type="file" name="update" id="firmwarefilename"/>
+					</li>
+					<li>
+						<button class="btn btn-submit fit-parent primary" type="submit">Update</button>
+					</li>
+				</form>
+			</div>
+
+		</div>
+	</pagefirmwareupdate>
+
+	<pagewifisettings data-page="true">
+		<header class="header-bar">
+			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+			<div class="center">
+				<h1 class="title">Dynatrace UFO - Configure WIFI</h1>
+			</div>
+		</header>
+		<div class="content">
+			<div class="padded-full">
+				<ul style="color:dimgrey">
+					<b>Welcome to the Dynatrace UFO</b><br/>Firmware version: <span id="firmwareversion">---</span>
+					<p/><br/>
+						<span style="color:dimgrey">Please configure the Wifi settings of your UFO first. In order to access the UFO AFTER submitting the Wifi settings, you may do the following:</span>
+						<li>Option 1: The lower ring visualizes the current IP address digit by digit. 192.168... will light 1 led then 9 (5+4) then 2 and so on. A dot is visualized as 3 white leds. The individuL digits are separated by a short white flash. The IP is visualized over and over again until the first api rest call is issued. To stay in sync every IP address visualization run uses a different color.</li>
+						<li>Option 2: Open Windows file explorer and click on "Network" to display all devices that are discovered through SSDP.
+						</li>
+						<li>Option 3: by default the UFO registers with hostname <b id="hostname">---</b> at you access point. so try <span id="ufourl">http://hostname</span>:
+							TODO: add auto-redirect to URL.
+						</li>
+						<li>Option 4: Remember your MAC address <b><span id="macaddress">---</span></b>
+						as you may want to lookup the IP address
+							in your Wifi Accesspoint.</li>
+				</ul>
+
+				<form method='GET' action='/api'>
+					<div class="padded-full">
+						<input type="text" name="ssid" placeholder="SSID" id="ssid" />
+						<input type="password" name="pwd" placeholder="*************" id="wifipwd" />
+					</div>
+					<div class="padded-full">
+						<button class="btn btn-submit fit-parent primary" type="submit">Apply WIFI settings and reboot.</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</pagewifisettings>
+
+	<pagedynatraceintegrationsettings data-page="true">
+		<header class="header-bar">
+			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+			<div class="center">
+				<h1 class="title">Dynatrace Integration Settings</h1>
+			</div>
+		</header>
+		<div class="content">
+			<div class="input-wrapper list">
+				<form method='GET' action='/api'>
+					<span class="padded-list">Configure Dynatrace integration. Submit empty fields to disable integration.</span>
+					<div class="padded-full">
+                    <ul class="list">
+                        <li class="">
+                            <label class="checkbox">
+                                <input type="checkbox" class="" name="dynatrace-on" id="dynatrace-on">
+                                Enabled
+                                <span></span>
+                            </label>
+                        </li>
+                    </ul>
+
+					<input type="text" name="dynatrace-environmentid" placeholder="environment-id" id="dynatrace-environmentid" />
+					<input type="password" name="dynatrace-apikey" placeholder="api-key" id="dynatrace-apikey" />
+					<input type="number" min="30" max="300" placeholder="interval in sec" name="dynatrace-interval" id="dynatrace-interval" />
+					<!--<ul class="list">
+                        <li class="padded-for-list">
+                            <label class="radio">
+                                <input type="radio" name="test">
+                                Radio1
+                                <span></span>
+                            </label>
+                        </li>
+					 </ul>-->
+					 </div>
+					<div class="padded-full">
+						<button class="btn btn-submit fit-parent primary" type="submit">Apply settings.</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</pagedynatraceintegrationsettings>
+
+
+
+	<!-- scripts -->
+	<script src="phonon-core.min.js"></script>
+
+	<!-- our app config -->
+	<!-- <script src="app.js"></script> -->
+	<script>
+		phonon.options({
+				navigator: {
+					defaultPage: 'home',
+					animatePages: true,
+					enableBrowserBackButton: true
+					//templateRootDirectory: ''
+				},
+				i18n: null // for this example, we do not use internationalization
+			});
+
+
+			var app = phonon.navigator();
+
+			/**
+			 * The activity scope is not mandatory.
+			 * For the home page, we do not need to perform actions during
+			 * page events such as onCreate, onReady, etc
+			*/
+			app.on({page: 'home', preventClose: false, content: null} , function(activity) {
+				var onApi = function(evt) {
+					var target = evt.target;
+					var apicall = target.getAttribute('data-api');
+					console.log(apicall);
+
+					var req = phonon.ajax({
+						method: 'GET',
+						url: 'api?'+apicall,
+						dataType: 'json',
+						//contentType: '',
+						//data: {'ssid': document.querySelector('#ssid').value, 'pwd': document.querySelector('#wifipwd').value},
+						//data: { 'key1': 'val1', 'key2': 'val2'},
+						//timeout: 5000,
+						success: function(res, xhr) {
+							console.log(res);
+						},
+
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					});
+
+				};
+
+				activity.onCreate(function() {
+					// document.querySelector('#submitwifisettings').on('tap', onWifiSettingsSubmit);
+					document.querySelector('#led1on').on('tap', onApi);
+					document.querySelector('#led1on').on('click', onApi);
+					document.querySelector('#led1off').on('tap', onApi);
+					document.querySelector('#led1off').on('click', onApi);
+					document.querySelector('#apisample1').on('tap', onApi);
+					document.querySelector('#apisample1').on('click', onApi);
+					document.querySelector('#apisample2').on('tap', onApi);
+					document.querySelector('#apisample2').on('click', onApi);
+					document.querySelector('#apisample3').on('tap', onApi);
+					document.querySelector('#apisample3').on('click', onApi);
+				})
+			});
+
+			document.on('pageopened', function(evt) {
+				console.log(evt.detail.page + ' is opened');
+				if (evt.detail.page == "pageinfo") {
+
+						var req = phonon.ajax({
+						method: 'GET',
+						url: 'info',
+						//crossDomain: false,
+						dataType: 'text/json',
+						success: function(res, xhr) {
+							console.log(xhr.response);
+							var result = JSON.parse(xhr.response);
+							document.getElementById('infossid').innerHTML = result.ssid;
+							document.getElementById('infoipaddress').innerHTML = result.ipaddress;
+							document.getElementById('infoheap').innerHTML = result.heap;
+							document.getElementById('infoipgateway').innerHTML = result.ipgateway;
+							document.getElementById('infoipdns').innerHTML = result.ipdns;
+							document.getElementById('infoipsubnetmask').innerHTML = result.ipsubnetmask;
+							document.getElementById('infomacaddress').innerHTML = result.macaddress;
+							document.getElementById('infohostname').innerHTML = result.hostname;
+							document.getElementById('infoapipaddress').innerHTML = result.apipaddress;
+							document.getElementById('infoapconnectedstations').innerHTML = result.apconnectedstations;
+							document.getElementById('infowifiautoconnect').innerHTML = result.wifiautoconnect;
+							document.getElementById('infofirmwareversion').innerHTML = result.firmwareversion;
+						},
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					});
+				}
+				if (evt.detail.page == "pagewifisettings") {
+					var req = phonon.ajax({
+						method: 'GET',
+						url: 'info',
+						dataType: 'text/json',
+						success: function(res, xhr) {
+							console.log(xhr.response);
+                            var result = JSON.parse(xhr.response);
+                            document.getElementById('ssid').value = result.ssid;
+							document.getElementById('macaddress').innerHTML = result.macaddress;
+							document.getElementById('hostname').innerHTML = result.hostname;
+							document.getElementById('ufourl').href = "http://"+result.hostname;
+							document.getElementById('firmwareversion').innerHTML = result.firmwareversion;
+						},
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					});
+				}
+				if (evt.detail.page == "pagedynatraceintegrationsettings") {
+						var req = phonon.ajax({
+						method: 'GET',
+						url: 'dtintinfo',
+						//crossDomain: false,
+						dataType: 'text/json',
+						success: function(res, xhr) {
+							console.log(xhr.response);
+							var result = JSON.parse(xhr.response);
+							document.getElementById('dynatrace-on').checked = result.enabled;
+							document.getElementById('dynatrace-environmentid').value = result.environmentid;
+							document.getElementById('dynatrace-apikey').value = result.apikey;
+							document.getElementById('dynatrace-interval').value = result.interval;
+						},
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					});
+				}
+			});
+
+			app.on({page: 'pageinfo', preventClose: false, content: null} , function(activity) {
+			});
+	</script>
+
+
+	<script>
+		// Let's go!
+		app.start();
+	</script>
+
+
+
+
+
+</body>
+
+</html>
