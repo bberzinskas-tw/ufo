@@ -5,7 +5,7 @@ var bodyParser = require('body-parser')
 var request = require('request')
 var async = require('async')
 
-var ufoAddress = 'http://192.168.1.106'
+var ufoAddress = 'http://10.0.0.109'
 var db = { sprint: "CONNECTING", release:"CONNECTING", latest:"CONNECTING", staging:"CONNECTING", production:"CONNECTING"};
 
 app.use(bodyParser.json())
