@@ -6,7 +6,7 @@ var request = require('request')
 var async = require('async')
 
 var ufoAddress = 'http://10.0.0.109'
-var db = { sprint: "CONNECTING", release:"CONNECTING", latest:"CONNECTING", staging:"CONNECTING", production:"CONNECTING"};
+var db = { sprint: "STABLE", release:"STABLE", latest:"STABLE", staging:"STABLE", production:"STABLE"};
 
 app.use(bodyParser.json())
 app.use(function(req, res, next) {
@@ -25,29 +25,29 @@ app.get('/status', function (req, res) {
 })
 
 app.get('/version', function (req, res) {
+  console.log('yo?')
 	async.parallel({
 	    latest: function(callback) {
 	        request('http://latest.teamworksapp.com/version.txt', function (error, response, body) {
-			  if (!error && response.statusCode == 200) {
-			    callback(null, body);
-			  }
-			})
+            if (error) return callback(error);
+    				callback(null, body);
+
+    			})
 	    },
 	    staging: function(callback) {
 	        request('http://staging.teamworksapp.com/version.txt', function (error, response, body) {
-			  if (!error && response.statusCode == 200) {
-			    callback(null, body);
-			  }
-			})
+    			 if (error) return callback(error);
+    			    callback(null, body);
+			     })
 	    },
 	    production: function(callback) {
-	        request('http://www.teamworksapp.com/version.txt', function (error, response, body) {
-			  if (!error && response.statusCode == 200) {
-			    callback(null, body);
-			  }
-			})
+	      request('http://www.teamworksapp.com/version.txt', function (error, response, body) {
+			    if (error) return callback(error);
+ 			    callback(null, body);
+  			})
 	    }
 	}, function(err, results) {
+    console.log(err);
 	    res.send(results);
 	});
 })
