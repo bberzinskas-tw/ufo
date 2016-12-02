@@ -118,9 +118,16 @@ app.post('/status', function (req, res) {
     	break;
 
     case "DANCE":
-      color= '0|15|FFFFFF';
+    if (ring == top ){
+      color= '0|15|FF0000';
       background= 'FF00FF',
       effect = ring + '_morph=500|15';
+    } else {
+      color= '0|15|0000FF';
+      background= '00FF00',
+      effect = ring + '_morph=500|15';
+    }
+
       break;
   };
 
