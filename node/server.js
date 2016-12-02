@@ -123,9 +123,9 @@ app.post('/status', function (req, res) {
       background= 'FF00FF',
       effect = ring + '_morph=500|15';
     } else {
-      color= '0|15|0000FF';
+      color= '0|1|FF0000|1|3|00FF00|4|1|0000FF';
       background= '00FF00',
-      effect = ring + '_morph=500|15';
+      effect = ring + '_whirl=220';
     }
 
       break;
