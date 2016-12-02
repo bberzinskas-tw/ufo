@@ -116,6 +116,12 @@ app.post('/status', function (req, res) {
     	background= '0000FF',
     	effect = ring + '_morph=500|15';
     	break;
+
+    case "DANCE":
+      color= '0|15|FFFFFF';
+      background= 'FF00FF',
+      effect = ring + '_morph=500|15';
+      break;
   };
 
   var url = ufoAddress + '/api?' + ring + '_init=1&' + ring + '='+color+'&'+ring+'_bg='+background+'&' + effect;
